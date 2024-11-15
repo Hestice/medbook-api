@@ -1,16 +1,12 @@
-from flask import Flask, jsonify
+from flaskr import create_app
+from flask_cors import CORS
 
-app = Flask(__name__)
+app = create_app()
+CORS(app)
 
 @app.route("/")
 def index():
-    return "Api test"
-
-@app.route("/api/home", methods=['GET'])
-def return_home():
-    return jsonify({
-        'message': "Hello world!"
-    })
+    return "Api connected"
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=8080)    
