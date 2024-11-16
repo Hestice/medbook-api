@@ -2,9 +2,8 @@
 
 from flask import Blueprint, request, jsonify
 from flaskr.models import db, User
-from werkzeug.security import generate_password_hash, check_password_hash
 
-bp = Blueprint('users', __name__, url_prefix='/users')
+bp = Blueprint('users', __name__, url_prefix='api/users')
 
 @bp.route('/register', methods=['POST'])
 def register():
