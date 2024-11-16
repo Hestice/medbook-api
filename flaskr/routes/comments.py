@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flaskr.models import db, Comment
 from datetime import datetime
 
-bp = Blueprint('comments', __name__, url_prefix='api/comments')
+bp = Blueprint('comments', __name__, url_prefix='/api/comments')
 
 @bp.route('/', methods=['POST'])
 def create_comment():

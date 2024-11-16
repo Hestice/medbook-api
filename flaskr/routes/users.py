@@ -3,7 +3,7 @@
 from flask import Blueprint, request, jsonify
 from flaskr.models import db, User
 
-bp = Blueprint('users', __name__, url_prefix='api/users')
+bp = Blueprint('users', __name__, url_prefix='/api/users')
 
 @bp.route('/register', methods=['POST'])
 def register():

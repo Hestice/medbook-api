@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flaskr.models import db, Appointment
 from datetime import datetime
 
-bp = Blueprint('appointments', __name__, url_prefix='api/appointments')
+bp = Blueprint('appointments', __name__, url_prefix='/api/appointments')
 
 @bp.route('/', methods=['POST'])
 def create_appointment():
