@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
+from flask_login import login_required
 from flaskr.models import db, Appointment
 from datetime import datetime
 
 bp = Blueprint('appointments', __name__, url_prefix='/api/appointments')
 
 @bp.route('/', methods=['POST'])
+@login_required
 def create_appointment():
     data = request.json
     new_appointment = Appointment(
@@ -20,6 +22,7 @@ def create_appointment():
     return jsonify({'message': 'Appointment created'}), 201
 
 @bp.route('/<id>', methods=['PUT'])
+@login_required
 def update_appointment(id):
     data = request.json
     appointment = Appointment.query.get(id)
@@ -31,6 +34,7 @@ def update_appointment(id):
     return jsonify({'message': 'Appointment not found'}), 404
 
 @bp.route('/<id>', methods=['DELETE'])
+@login_required
 def delete_appointment(id):
     appointment = Appointment.query.get(id)
     if appointment:
@@ -40,6 +44,7 @@ def delete_appointment(id):
     return jsonify({'message': 'Appointment not found'}), 404
 
 @bp.route('/', methods=['GET'])
+@login_required
 def list_appointments():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
