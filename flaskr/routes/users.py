@@ -1,5 +1,3 @@
-# flaskr/routes/users.py
-
 from flask import Blueprint, request, jsonify
 from flaskr.models import db, User
 
@@ -34,6 +32,17 @@ def login():
         return jsonify({"error": "Invalid email or password"}), 400
 
     return jsonify({"message": "Login successful"}), 200
+
+@bp.route('/exists', methods=['POST'])
+def user_exists():
+    data = request.get_json()
+    email = data.get('email')
+
+    user = User.query.filter_by(email=email).first()
+    if user is not None:
+        return jsonify({"exists": True}), 200
+    else:
+        return jsonify({"exists": False}), 200
 
 @bp.route('/reset_password_request', methods=['POST'])
 def reset_password_request():
