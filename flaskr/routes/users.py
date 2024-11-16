@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_login import login_user, logout_user, login_required, current_user
 from flaskr.models import db, User
 
 bp = Blueprint('users', __name__, url_prefix='/api/users')
@@ -31,7 +32,26 @@ def login():
     if user is None or not user.check_password(password):
         return jsonify({"error": "Invalid email or password"}), 400
 
+    login_user(user)
     return jsonify({"message": "Login successful"}), 200
+
+@bp.route('/logout', methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    return jsonify({"message": "Logged out successfully"}), 200
+
+@bp.route('/current_user', methods=['GET'])
+def get_current_user():
+    if current_user.is_authenticated:
+        return jsonify({
+            "uuid": current_user.uuid,
+            "name": current_user.name,
+            "email": current_user.email,
+            "role": current_user.role
+        })
+    else:
+        return jsonify({"error": "No user is currently logged in"}), 401
 
 @bp.route('/exists', methods=['POST'])
 def user_exists():

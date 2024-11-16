@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
+from flask_login import login_required
 from flaskr.models import db, Comment
 from datetime import datetime
 
 bp = Blueprint('comments', __name__, url_prefix='/api/comments')
 
 @bp.route('/', methods=['POST'])
+@login_required
 def create_comment():
     data = request.json
     new_comment = Comment(
@@ -19,6 +21,7 @@ def create_comment():
     return jsonify({'message': 'Comment created'}), 201
 
 @bp.route('/<id>', methods=['PUT'])
+@login_required
 def update_comment(id):
     data = request.json
     comment = Comment.query.get(id)
@@ -29,6 +32,7 @@ def update_comment(id):
     return jsonify({'message': 'Comment not found'}), 404
 
 @bp.route('/<id>', methods=['DELETE'])
+@login_required
 def delete_comment(id):
     comment = Comment.query.get(id)
     if comment:
@@ -38,6 +42,7 @@ def delete_comment(id):
     return jsonify({'message': 'Comment not found'}), 404
 
 @bp.route('/', methods=['GET'])
+@login_required
 def list_comments():
     appointment_id = request.args.get('appointment_id')
     comments = Comment.query.filter_by(appointmentId=appointment_id).all()
