@@ -1,6 +1,7 @@
-from flask import Blueprint, request, jsonify
-from flask_login import login_user, logout_user, login_required, current_user
+from flask import Blueprint, request, jsonify, session
 from flaskr.models import db, User
+from werkzeug.security import check_password_hash
+from flaskr.routes.utils import get_current_user_from_session
 
 bp = Blueprint('users', __name__, url_prefix='/api/users')
 
@@ -29,29 +30,28 @@ def login():
     password = data.get('password')
 
     user = User.query.filter_by(email=email).first()
-    if user is None or not user.check_password(password):
+    if user is None or not check_password_hash(user.password_hash, password):
         return jsonify({"error": "Invalid email or password"}), 400
 
-    login_user(user)
+    session['user_uuid'] = user.uuid
     return jsonify({"message": "Login successful"}), 200
 
 @bp.route('/logout', methods=['POST'])
-@login_required
 def logout():
-    logout_user()
+    session.pop('user_uuid', None)
     return jsonify({"message": "Logged out successfully"}), 200
 
 @bp.route('/current_user', methods=['GET'])
 def get_current_user():
-    if current_user.is_authenticated:
+    user = get_current_user_from_session()
+    if user:
         return jsonify({
-            "uuid": current_user.uuid,
-            "name": current_user.name,
-            "email": current_user.email,
-            "role": current_user.role
+            "uuid": user.uuid,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role
         })
-    else:
-        return jsonify({"error": "No user is currently logged in"}), 401
+    return jsonify({"error": "No user is currently logged in"}), 401
 
 @bp.route('/exists', methods=['POST'])
 def user_exists():
