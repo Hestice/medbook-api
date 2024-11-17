@@ -32,6 +32,9 @@ class User(db.Model, UserMixin):
         except:
             return None
         return User.query.get(data['reset_password'])
+    
+    def get_id(self):
+        return self.uuid
 
 class Appointment(db.Model):
     __tablename__ = 'appointments'
