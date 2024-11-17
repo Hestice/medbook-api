@@ -2,11 +2,10 @@ from . import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import Serializer
-from flask_login import UserMixin
 import uuid
 import os
 
-class User(db.Model, UserMixin):
+class User(db.Model):
     __tablename__ = 'users'
     uuid = db.Column(db.String, primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String, nullable=False)
