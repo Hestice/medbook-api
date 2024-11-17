@@ -45,12 +45,21 @@ class Appointment(db.Model):
     time = db.Column(db.Time, nullable=False)
     comments = db.relationship('Comment', backref='appointment', lazy=True)
 
+
 class Availability(db.Model):
     __tablename__ = 'availabilities'
-    id = db.Column(db.String, primary_key=True)
-    doctorId = db.Column(db.String, db.ForeignKey('users.uuid'), nullable=False)
-    availableFrom = db.Column(db.DateTime, nullable=False)
-    availableTo = db.Column(db.DateTime, nullable=False)
+    id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
+    doctorId = db.Column(db.String(50), nullable=False)
+    availableFrom = db.Column(db.Time, nullable=False)
+    availableTo = db.Column(db.Time, nullable=False)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'doctorId': self.doctorId,
+            'availableFrom': self.availableFrom.strftime('%Y-%m-%d %H:%M:%S'),
+            'availableTo': self.availableTo.strftime('%Y-%m-%d %H:%M:%S')  
+        }
 
 class Comment(db.Model):
     __tablename__ = 'comments'
