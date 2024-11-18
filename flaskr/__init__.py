@@ -50,7 +50,5 @@ def create_app():
     @app.before_request
     def log_session_data():
         app.logger.debug(f'Session: {session.items()}')
-
-    app.logger.setLevel(logging.DEBUG)
     
     return app
