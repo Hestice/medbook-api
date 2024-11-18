@@ -1,7 +1,7 @@
 # appointments.py
 from flask import Blueprint, request, jsonify
 from datetime import datetime
-from flaskr.models import User, db, Appointment
+from flaskr.models import Availability, User, db, Appointment
 from .utils import get_current_user_from_session, unauthorized_message
 
 bp = Blueprint('appointments', __name__, url_prefix='/api/appointments')
@@ -18,7 +18,6 @@ def create_appointment():
     appointment_to = datetime.strptime(data['to'], '%Y-%m-%d %H:%M:%S')
 
     new_appointment = Appointment(
-        id=data['id'],
         patientId=data['patientId'],
         doctorId=data['doctorId'],
         availabilityId=data['availabilityId'],
@@ -28,8 +27,14 @@ def create_appointment():
     )
 
     db.session.add(new_appointment)
+
+    availability = Availability.query.filter_by(id=data['availabilityId']).first()
+    if availability:
+        availability.is_available = False
+
     db.session.commit()
-    return jsonify({'message': 'Appointment created'}), 201
+
+    return jsonify({'message': 'Appointment created and availability updated'}), 201
 
 @bp.route('/<id>', methods=['PUT'])
 def update_appointment(id):

@@ -72,3 +72,22 @@ def get_doctor(uuid):
         'uuid': doctor.uuid,
         'name': doctor.name
     }), 200
+
+@bp.route('/<availability_id>/update', methods=['PATCH'])
+def update_availability(availability_id):
+    user = get_current_user_from_session()
+    if not user:
+        return unauthorized_message()
+
+    availability = Availability.query.filter_by(id=availability_id).first()
+    if not availability:
+        return jsonify({'message': 'Availability not found'}), 404
+
+    data = request.json
+    is_available = data.get('is_available')
+
+    if is_available is not None:
+        availability.is_available = is_available
+
+    db.session.commit()
+    return jsonify({'message': 'Availability updated successfully', 'availability': availability.serialize()}), 200
