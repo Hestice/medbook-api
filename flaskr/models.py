@@ -41,23 +41,39 @@ class Appointment(db.Model):
     patientId = db.Column(db.String, db.ForeignKey('users.uuid'), nullable=False)
     doctorId = db.Column(db.String, db.ForeignKey('users.uuid'), nullable=False)
     availabilityId = db.Column(db.String, db.ForeignKey('availabilities.id'), nullable=False)
-    appointmentDateTime = db.Column(db.DateTime, nullable=False, default=datetime)
+    appointment_from = db.Column(db.DateTime, nullable=False, default=datetime)
+    appointment_to = db.Column(db.DateTime, nullable=False, default=datetime)
     comments = db.relationship('Comment', backref='appointment', lazy=True)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    patient_name = db.Column(db.String, nullable=False)
 
-
+    def serialize(self):
+        return {
+            'id': self.id,
+            'patientId': self.patientId,
+            'doctorId': self.doctorId,
+            'availabilityId': self.availabilityId,
+            'appointment_from': self.appointment_from.strftime('%Y-%m-%d %H:%M:%S'),
+            'appointment_to': self.appointment_to.strftime('%Y-%m-%d %H:%M:%S'),
+            'is_active': self.is_active,
+            'patient_name': self.patient_name
+        }
+    
 class Availability(db.Model):
     __tablename__ = 'availabilities'
     id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
     doctorId = db.Column(db.String(50), nullable=False)
-    availableFrom = db.Column(db.Time, nullable=False)
-    availableTo = db.Column(db.Time, nullable=False)
+    availableFrom = db.Column(db.DateTime, nullable=False, default=datetime)
+    availableTo = db.Column(db.DateTime, nullable=False, default=datetime)
+    is_available = db.Column(db.Boolean, nullable=False, default=True)
 
     def serialize(self):
         return {
             'id': self.id,
             'doctorId': self.doctorId,
             'availableFrom': self.availableFrom.strftime('%Y-%m-%d %H:%M:%S'),
-            'availableTo': self.availableTo.strftime('%Y-%m-%d %H:%M:%S')  
+            'availableTo': self.availableTo.strftime('%Y-%m-%d %H:%M:%S'),
+            'is_available': self.is_available
         }
 
 class Comment(db.Model):
@@ -66,4 +82,4 @@ class Comment(db.Model):
     appointmentId = db.Column(db.String, db.ForeignKey('appointments.id'), nullable=False)
     userId = db.Column(db.String, db.ForeignKey('users.uuid'), nullable=False)
     content = db.Column(db.String, nullable=False)
-    createdAt = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    createdAt = db.Column(db.DateTime, nullable=False, default=datetime)
