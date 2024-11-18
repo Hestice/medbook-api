@@ -10,3 +10,13 @@ def get_current_user_from_session():
     return None
 def unauthorized_message():
     return jsonify({"error": "Unauthorized, please login first"}), 401
+
+def paginate(query, page, per_page):
+    total = query.count()
+    items = query.offset((page - 1) * per_page).limit(per_page).all()
+    return {
+        'total': total,
+        'page': page,
+        'per_page': per_page,
+        'items': items
+    }
