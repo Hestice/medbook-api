@@ -46,9 +46,5 @@ def create_app():
     app.register_blueprint(availabilities.bp)
     app.register_blueprint(appointments.bp)
     app.register_blueprint(comments.bp)
-
-    @app.before_request
-    def log_session_data():
-        app.logger.debug(f'Session: {session.items()}')
     
     return app
