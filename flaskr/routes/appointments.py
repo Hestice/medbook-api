@@ -59,14 +59,14 @@ def delete_appointment(id):
 
     appointment = Appointment.query.get(id)
     if appointment:
-        availability = Availability.query.get(appointment.availabilityId)
+        availability = Availability.query.filter_by(id=appointment.availabilityId).first()
         if availability:
             availability.is_available = True
-
-        db.session.delete(appointment) 
+            db.session.commit()
+    
+        db.session.delete(appointment)
         db.session.commit()
-        return jsonify({'message': 'Appointment deleted'}), 200
-
+        return jsonify({'message': 'Appointment deleted and availability restored'}), 204
     return jsonify({'message': 'Appointment not found'}), 404
 
 @bp.route('/', methods=['GET'])
@@ -75,9 +75,20 @@ def list_appointments():
     if not user:
         return unauthorized_message()
 
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    appointments = Appointment.query.filter(
-        Appointment.date.between(start_date, end_date)
-    ).all()
+    start_date_str = request.args.get('start_date')
+    end_date_str = request.args.get('end_date')
+
+    if start_date_str and end_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+            appointments = Appointment.query.filter(
+                Appointment.appointment_from >= start_date,
+                Appointment.appointment_from <= end_date
+            ).all()
+        except ValueError:
+            return jsonify({'message': 'Invalid date format, use YYYY-MM-DD'}), 400
+    else:
+        appointments = Appointment.query.all()
+
     return jsonify([appointment.serialize() for appointment in appointments]), 200
