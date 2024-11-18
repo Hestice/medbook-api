@@ -37,12 +37,11 @@ class User(db.Model):
 
 class Appointment(db.Model):
     __tablename__ = 'appointments'
-    id = db.Column(db.String, primary_key=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     patientId = db.Column(db.String, db.ForeignKey('users.uuid'), nullable=False)
     doctorId = db.Column(db.String, db.ForeignKey('users.uuid'), nullable=False)
     availabilityId = db.Column(db.String, db.ForeignKey('availabilities.id'), nullable=False)
-    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    time = db.Column(db.Time, nullable=False)
+    appointmentDateTime = db.Column(db.DateTime, nullable=False, default=datetime)
     comments = db.relationship('Comment', backref='appointment', lazy=True)
 
 
