@@ -59,9 +59,14 @@ def delete_appointment(id):
 
     appointment = Appointment.query.get(id)
     if appointment:
-        db.session.delete(appointment)
+        availability = Availability.query.get(appointment.availabilityId)
+        if availability:
+            availability.is_available = True
+
+        db.session.delete(appointment) 
         db.session.commit()
-        return jsonify({'message': 'Appointment deleted'}), 204
+        return jsonify({'message': 'Appointment deleted'}), 200
+
     return jsonify({'message': 'Appointment not found'}), 404
 
 @bp.route('/', methods=['GET'])
