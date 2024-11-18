@@ -31,7 +31,7 @@ def create_app():
     app.config['SESSION_COOKIE_NAME'] = 'session'
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SECURE'] = False
-    app.config['SESSION_PERMANENT'] = False
+    app.config['SESSION_PERMANENT'] = True
     app.config['SESSION_USE_SIGNER'] = True
 
     Session(app)
