@@ -48,7 +48,7 @@ def list_patient_availabilities():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 5, type=int)
 
-    availabilities_query = Availability.query
+    availabilities_query = Availability.query.filter_by(is_available=True)
     paginated_data = paginate(availabilities_query, page, per_page)
 
     return jsonify({
