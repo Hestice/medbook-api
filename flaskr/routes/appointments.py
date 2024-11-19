@@ -44,12 +44,40 @@ def update_appointment(id):
 
     data = request.json
     appointment = Appointment.query.get(id)
-    if appointment:
-        appointment.date = datetime.strptime(data['date'], '%Y-%m-%d')
-        appointment.time = datetime.strptime(data['time'], '%H:%M:%S').time()
-        db.session.commit()
-        return jsonify({'message': 'Appointment updated'}), 200
-    return jsonify({'message': 'Appointment not found'}), 404
+
+    if not appointment:
+        return jsonify({'message': 'Appointment not found'}), 404
+
+    new_appointment_from = datetime.strptime(data['time_start'], '%Y-%m-%d %H:%M:%S')
+    new_appointment_to = datetime.strptime(data['time_end'], '%Y-%m-%d %H:%M:%S')
+
+    if 'availabilityId' in data and data['availabilityId'] != appointment.availabilityId:
+        new_availability = Availability.query.filter_by(id=data['availabilityId'], is_available=True).first()
+        if not new_availability:
+            return jsonify({'message': 'New availability slot not found or not available'}), 400
+
+        if new_appointment_from < new_availability.availableFrom or new_appointment_to > new_availability.availableTo:
+            return jsonify({'message': 'New appointment time falls outside of the new availability slot'}), 400
+
+        old_availability = Availability.query.filter_by(id=appointment.availabilityId).first()
+        if old_availability:
+            old_availability.is_available = True
+
+        appointment.availabilityId = new_availability.id
+        new_availability.is_available = False
+    else:
+        current_availability = Availability.query.filter_by(id=appointment.availabilityId).first()
+        if not current_availability:
+            return jsonify({'message': 'Current availability slot not found'}), 400
+
+        if new_appointment_from < current_availability.availableFrom or new_appointment_to > current_availability.availableTo:
+            return jsonify({'message': 'New appointment time falls outside of the current availability slot'}), 400
+
+    appointment.appointment_from = new_appointment_from
+    appointment.appointment_to = new_appointment_to
+
+    db.session.commit()
+    return jsonify({'message': 'Appointment updated'}), 200
 
 @bp.route('/<id>', methods=['DELETE'])
 def delete_appointment(id):

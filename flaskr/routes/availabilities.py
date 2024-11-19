@@ -43,6 +43,16 @@ def list_availabilities():
     availabilities = Availability.query.filter_by(doctorId=user.uuid).all()
     return jsonify([availability.serialize() for availability in availabilities]), 200
 
+@bp.route('/list', methods=['GET'])
+def get_availabilities():
+    doctor_id = request.args.get('doctorId')
+    if not doctor_id:
+        return jsonify({'message': 'Doctor ID is required'}), 400
+
+    availabilities = Availability.query.filter_by(doctorId=doctor_id, is_available=True).all()
+    return jsonify([availability.serialize() for availability in availabilities]), 200
+
+
 @bp.route('/patient', methods=['GET'])
 def list_patient_availabilities():
     page = request.args.get('page', 1, type=int)
