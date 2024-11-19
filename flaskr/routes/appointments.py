@@ -107,18 +107,22 @@ def list_appointments():
     end_date_str = request.args.get('end_date')
     limit = request.args.get('limit', type=int)
 
+    if user.role == 'patient':
+        appointments = Appointment.query.filter(Appointment.patientId == user.uuid)
+    elif user.role == 'doctor':
+        appointments = Appointment.query.filter(Appointment.doctorId == user.uuid)
+    else:
+        return jsonify({'message': 'Invalid user role'}), 400
     if start_date_str and end_date_str:
         try:
             start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
             end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
-            appointments = Appointment.query.filter(
+            appointments = appointments.filter(
                 Appointment.appointment_from >= start_date,
                 Appointment.appointment_from <= end_date
             )
         except ValueError:
             return jsonify({'message': 'Invalid date format, use YYYY-MM-DD'}), 400
-    else:
-        appointments = Appointment.query
 
     if limit:
         appointments = appointments.limit(limit)
