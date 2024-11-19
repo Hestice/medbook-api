@@ -105,6 +105,7 @@ def list_appointments():
 
     start_date_str = request.args.get('start_date')
     end_date_str = request.args.get('end_date')
+    limit = request.args.get('limit', type=int)
 
     if start_date_str and end_date_str:
         try:
@@ -113,10 +114,15 @@ def list_appointments():
             appointments = Appointment.query.filter(
                 Appointment.appointment_from >= start_date,
                 Appointment.appointment_from <= end_date
-            ).all()
+            )
         except ValueError:
             return jsonify({'message': 'Invalid date format, use YYYY-MM-DD'}), 400
     else:
-        appointments = Appointment.query.all()
+        appointments = Appointment.query
+
+    if limit:
+        appointments = appointments.limit(limit)
+
+    appointments = appointments.all()
 
     return jsonify([appointment.serialize() for appointment in appointments]), 200
