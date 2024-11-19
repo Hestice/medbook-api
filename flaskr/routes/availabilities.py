@@ -95,9 +95,31 @@ def update_availability(availability_id):
 
     data = request.json
     is_available = data.get('is_available')
+    available_from = data.get('availableFrom')
+    available_to = data.get('availableTo')
 
     if is_available is not None:
         availability.is_available = is_available
 
+    if available_from:
+        availability.availableFrom = available_from
+
+    if available_to:
+        availability.availableTo = available_to
+
     db.session.commit()
     return jsonify({'message': 'Availability updated successfully', 'availability': availability.serialize()}), 200
+
+@bp.route('/<availability_id>/delete', methods=['DELETE'])
+def delete_availability(availability_id):
+    user = get_current_user_from_session()
+    if not user:
+        return unauthorized_message()
+
+    availability = Availability.query.filter_by(id=availability_id).first()
+    if not availability:
+        return jsonify({'message': 'Availability not found'}), 404
+
+    db.session.delete(availability)
+    db.session.commit()
+    return jsonify({'message': 'Availability deleted successfully'}), 200
